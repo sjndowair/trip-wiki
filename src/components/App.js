@@ -12,14 +12,43 @@ export default function App($app) {
     return "total";
   };
 
-  console.log(getSortBy());
-
   const getSearchWorld = () => {
     if (window.location.search && window.location.search.includes("search=")) {
       return window.location.search.split("search=")[1];
     }
     return "";
   };
+  const nowPass = window.location.pathname;
+  const prevRegion = nowPass.split("/")[1];
+  if (prevRegion) {
+    console.log(prevRegion);
+  } else {
+    console.log("실패");
+  }
+
+  window.addEventListener("popstate", async () => {
+    const nowPass = window.location.pathname;
+
+    const prevStartIdx = 0;
+    const prevRegion = nowPass.replace("/", "");
+    console.log(prevRegion);
+    const prevSortBy = getSortBy();
+    const prevSearchWorld = getSearchWorld();
+    const cities = await request(
+      prevStartIdx,
+      prevRegion,
+      prevSortBy,
+      prevSearchWorld
+    );
+
+    this.setState({
+      startIdx: prevStartIdx,
+      region: prevRegion,
+      sortBy: prevSortBy,
+      searchWorld: prevSearchWorld,
+      cities: cities,
+    });
+  });
 
   this.state = {
     startIdx: 0,
@@ -121,7 +150,9 @@ export default function App($app) {
       });
     },
   });
-  const cityDetail = new CityDetail();
+  const cityDetail = new CityDetail({
+    $app,
+  });
 
   this.setState = (newState) => {
     this.state = newState;

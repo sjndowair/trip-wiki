@@ -15,7 +15,7 @@ export default function Header({
 
   this.template = () => {
     const { sortBy, searchWorld } = this.state || {};
-    console.log(searchWorld);
+    // console.log(searchWorld);
 
     let temp = `
     <div class="title">

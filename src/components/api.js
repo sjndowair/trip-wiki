@@ -15,12 +15,12 @@ export const request = async (startIdx, region, sortBy, searchWord) => {
     if (searchWord) {
       url += `&search=${searchWord}`;
     }
-    console.log(url);
+    // console.log(url);
     //API 호출
     const response = await fetch(url);
     if (response) {
       let data = await response.json();
-      console.log(data);
+      //   console.log(data);
       return data;
     }
   } catch (err) {
