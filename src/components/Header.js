@@ -4,7 +4,7 @@ export default function Header({
   handleSortChange,
   handleSearch,
 }) {
-  this.state = initialState;
+  this.state = initialState || { sortBy: "", searchWorld: "" };
 
   this.$target = document.createElement("div");
   this.$target.className = "header";
@@ -14,7 +14,7 @@ export default function Header({
   this.handleSearch = handleSearch;
 
   this.template = () => {
-    const { sortBy, searchWorld } = this.state;
+    const { sortBy, searchWorld } = this.state || {};
     console.log(searchWorld);
 
     let temp = `
@@ -48,7 +48,7 @@ export default function Header({
         <div class="search">
         <input type="text" placeholder="Search" id="search" autocomplete="off" value=${
           searchWorld || ""
-        }  />
+        }  >
         </div>
     </div>
     `;
@@ -56,15 +56,22 @@ export default function Header({
   };
   this.render = () => {
     this.$target.innerHTML = this.template();
-    document.getElementById("sortList").addEventListener("change", (event) => {
-      this.handleSortChange(event.target.value);
-    });
+
+    const sortList = document.getElementById("sortList");
+    if (sortList) {
+      sortList.addEventListener("change", (event) => {
+        handleSortChange(event.target.value);
+      });
+    }
+
     const searchInput = document.getElementById("search");
-    searchInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        this.handleSearch(searchInput?.value);
-      }
-    });
+    if (searchInput) {
+      searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          handleSearch(searchInput.value);
+        }
+      });
+    }
   };
   this.setState = (newState) => {
     this.state = newState;

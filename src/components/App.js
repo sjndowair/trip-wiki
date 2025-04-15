@@ -5,10 +5,26 @@ import CityDetail from "./CityDetail.js";
 import { request } from "./api.js";
 
 export default function App($app) {
+  const getSortBy = () => {
+    if (window.location.search) {
+      return window.location.search.split("sort=")[1].split("&")[0];
+    }
+    return "total";
+  };
+
+  console.log(getSortBy());
+
+  const getSearchWorld = () => {
+    if (window.location.search && window.location.search.includes("search=")) {
+      return window.location.search.split("search=")[1];
+    }
+    return "";
+  };
+
   this.state = {
     startIdx: 0,
-    sortBy: "",
-    searchWorld: "",
+    sortBy: getSortBy(),
+    searchWorld: getSearchWorld(),
     region: "",
     cities: "",
   };
@@ -62,7 +78,28 @@ export default function App($app) {
     },
   });
 
-  const regionList = new RegionList();
+  const regionList = new RegionList({
+    $app,
+    initialState: this.state.region,
+    handleRegionChange: async (region) => {
+      history.pushState(null, null, `/${region}`);
+      const cities = await request(
+        0,
+        region,
+        this.state.sortBy,
+        this.state.searchWorld
+      );
+      this.setState({
+        ...this.state,
+        startIdx: 0,
+        region: region,
+        sortBy: this.state.sortBy,
+        searchWorld: this.state.searchWorld,
+        cities: cities,
+      });
+    },
+  });
+
   const cityList = new CityList({
     $app,
     initialState: this.state.cities,
@@ -93,15 +130,16 @@ export default function App($app) {
       sortBy: this.state.sortBy,
       searchWorld: this.state.searchWorld,
     });
+    regionList.setState(this.state.region);
   };
 
   const init = async () => {
     try {
       const cities = await request(
         this.state.startIdx,
+        this.state.region,
         this.state.sortBy,
-        this.state.searchWorld,
-        this.state.region
+        this.state.searchWorld
       );
       this.setState({
         ...this.state,
